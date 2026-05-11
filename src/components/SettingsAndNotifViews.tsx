@@ -6,12 +6,14 @@ interface SettingsViewProps {
   profile: UserProfile;
   setProfile: (profile: UserProfile) => void;
   onSave: () => void;
+  onResetRegistration?: () => void;
 }
 
 export function SettingsView({
   profile,
   setProfile,
-  onSave
+  onSave,
+  onResetRegistration
 }: SettingsViewProps) {
   return (
     <div id="settings-view-container" className="flex flex-col h-full bg-[#f8f9fa] overflow-y-auto pb-12">
@@ -19,9 +21,20 @@ export function SettingsView({
         
         {/* User profile setting fields */}
         <div id="settings-profile-card" className="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-            <User className="w-5 h-5 text-blue-600" />
-            <span className="text-xs font-black text-slate-800">ข้อมูลส่วนตัวผู้ป่วย (เพื่อใช้วิเคราะห์อาการร่วมกับหมอ AI)</span>
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <User className="w-5 h-5 text-blue-600" />
+              <span className="text-xs font-black text-slate-800">ข้อมูลส่วนตัวผู้ป่วย (เพื่อใช้วิเคราะห์อาการร่วมกับหมอ AI)</span>
+            </div>
+            {onResetRegistration && (
+              <button 
+                id="btn-re-register-trigger"
+                onClick={onResetRegistration}
+                className="text-[10px] text-slate-500 hover:text-rose-500 font-bold border border-slate-200 hover:border-rose-200 px-2.5 py-1 rounded-lg transition-all"
+              >
+                ลงทะเบียนใหม่
+              </button>
+            )}
           </div>
 
           <div className="space-y-3">

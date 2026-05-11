@@ -33,6 +33,7 @@ import CaregiversView from "./components/CaregiversView";
 import DoctorChatView from "./components/DoctorChatView";
 import { SettingsView, NotificationsView } from "./components/SettingsAndNotifViews";
 import MenuSidebar from "./components/MenuSidebar";
+import RegistrationView from "./components/RegistrationView";
 
 const menuItems = [
   { id: 'home' as ViewType, label: 'หน้าแรก', icon: Home },
@@ -46,6 +47,11 @@ const menuItems = [
 ];
 
 export default function App() {
+  // Global State for Registration Onboarding
+  const [isRegistered, setIsRegistered] = useState<boolean>(() => {
+    return localStorage.getItem("health_is_registered") === "true";
+  });
+
   // Global States
   const [currentView, setView] = useState<ViewType>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -57,7 +63,24 @@ export default function App() {
   const [temperature, setTemperature] = useState<number>(36); // default mockup temp
 
   // User Profile
-  const [profile, setProfile] = useState<UserProfile>(DEFAULT_USER_PROFILE);
+  const [profile, setProfile] = useState<UserProfile>(() => {
+    const saved = localStorage.getItem("health_user_profile");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return DEFAULT_USER_PROFILE;
+      }
+    }
+    // Default to a partially blank state or Default mockup for a clean register sheet
+    return {
+      name: "",
+      age: 48,
+      gender: "ชาย",
+      hasCongenitalDisease: false,
+      congenitalDiseaseDetails: "",
+    };
+  });
   const [settingsSavedAlert, setSettingsSavedAlert] = useState(false);
 
   // Auto notification indicator based on sliders
@@ -72,10 +95,31 @@ export default function App() {
   };
 
   const handleSaveSettings = () => {
+    localStorage.setItem("health_user_profile", JSON.stringify(profile));
     setSettingsSavedAlert(true);
     setTimeout(() => {
       setSettingsSavedAlert(false);
     }, 3000);
+  };
+
+  const handleCompleteRegistration = () => {
+    localStorage.setItem("health_is_registered", "true");
+    localStorage.setItem("health_user_profile", JSON.stringify(profile));
+    setIsRegistered(true);
+  };
+
+  const handleResetRegistration = () => {
+    localStorage.removeItem("health_is_registered");
+    localStorage.removeItem("health_user_profile");
+    setProfile({
+      name: "",
+      age: 48,
+      gender: "ชาย",
+      hasCongenitalDisease: false,
+      congenitalDiseaseDetails: "",
+    });
+    setIsRegistered(false);
+    setView('home');
   };
 
   // Get view header corresponding exactly to the mockup design screens
@@ -101,6 +145,16 @@ export default function App() {
         return "ALL ABOUT TODAY";
     }
   };
+
+  if (!isRegistered) {
+    return (
+      <RegistrationView 
+        profile={profile}
+        setProfile={setProfile}
+        onComplete={handleCompleteRegistration}
+      />
+    );
+  }
 
   return (
     <div id="web-portal-root" className="min-h-screen bg-[#f8fafc] font-sans antialiased text-slate-800 flex flex-col h-screen overflow-hidden">
@@ -361,6 +415,7 @@ export default function App() {
                   profile={profile}
                   setProfile={setProfile}
                   onSave={handleSaveSettings}
+                  onResetRegistration={handleResetRegistration}
                 />
               )}
             </div>
