@@ -1,0 +1,8 @@
+{
+  "name": "Remix: All About Today",
+  "description": "แอปพลิเคชันคอยดูแลสุขภาพและคุณภาพชีวิตในแต่ละวัน เช็คฝุ่น PM2.5 ดัชนีความร้อนและฮีทสโตรก ประเมินความเสี่ยงโรค และปรึกษาแพทย์อัจฉริยะแบบเรียลไทม์",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
