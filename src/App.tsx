@@ -19,7 +19,8 @@ import {
   ShieldAlert,
   Settings,
   User,
-  LogOut
+  LogOut,
+  Coins
 } from "lucide-react";
 import { ViewType, UserProfile } from "./types";
 import { DEFAULT_USER_PROFILE } from "./constants";
@@ -61,6 +62,17 @@ export default function App() {
   const [pm25, setPm25] = useState<number>(82); // default mockup dust value
   const [heatIndex, setHeatIndex] = useState<number>(41); // default mockup heat index
   const [temperature, setTemperature] = useState<number>(36); // default mockup temp
+
+  // Daily Web Points & Streak State (Durable Persistence)
+  const [userPoints, setUserPoints] = useState<number>(() => {
+    return Number(localStorage.getItem("health_user_points") || "20"); // starts at 20 initial thank-you points
+  });
+  const [checkInStreak, setCheckInStreak] = useState<number>(() => {
+    return Number(localStorage.getItem("health_check_in_streak") || "0");
+  });
+  const [lastCheckInDate, setLastCheckInDate] = useState<string | null>(() => {
+    return localStorage.getItem("health_last_check_in_date");
+  });
 
   // User Profile
   const [profile, setProfile] = useState<UserProfile>(() => {
@@ -197,6 +209,18 @@ export default function App() {
             </div>
           </div>
 
+          {/* Real-time Coins Reward Balance */}
+          <div 
+            id="header-points-badge"
+            onClick={() => setView('home')}
+            className="flex bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 rounded-xl px-2.5 py-1.5 items-center gap-1.5 text-xs text-amber-400 font-bold font-mono cursor-pointer transition-colors"
+            title="แต้มสะสมป้องภัยคัดกรองคลิกเพื่อกลับหน้าเช็คอิน"
+          >
+            <Coins className="w-4 h-4 text-amber-500 animate-pulse" />
+            <span className="hidden sm:inline text-slate-300 font-sans font-semibold">แต้ม:</span>
+            <span>{userPoints}</span>
+          </div>
+
           {/* Toast Notification Bell with indicator */}
           <div className="relative">
             <button
@@ -240,9 +264,13 @@ export default function App() {
               <div className="w-10 h-10 rounded-full border border-blue-500/30 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-lg text-white shadow-inner shrink-0">
                 <User className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5 leading-none">ผู้ใช้ลงทะเบียน</p>
                 <p className="font-semibold text-xs text-slate-100 truncate">{profile.name || "สมเกียรติ รักดี"}</p>
+                <div className="flex items-center gap-1 mt-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded-md w-fit">
+                  <Coins className="w-3 h-3 text-amber-500 shrink-0" />
+                  <span className="text-[10px] font-bold font-mono leading-none">{userPoints} แต้ม</span>
+                </div>
               </div>
             </div>
           </div>
@@ -368,6 +396,12 @@ export default function App() {
                   setTemperature={setTemperature}
                   onNavigateToKnowledge={handleNavigateToKnowledge}
                   onOpenSidebar={() => setSidebarOpen(true)}
+                  userPoints={userPoints}
+                  setUserPoints={setUserPoints}
+                  checkInStreak={checkInStreak}
+                  setCheckInStreak={setCheckInStreak}
+                  lastCheckInDate={lastCheckInDate}
+                  setLastCheckInDate={setLastCheckInDate}
                 />
               )}
 

@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Smartphone
 } from "lucide-react";
+import DailyCheckInWidget from "./DailyCheckInWidget";
 
 interface HomeViewProps {
   pm25: number;
@@ -21,6 +22,12 @@ interface HomeViewProps {
   setTemperature: (val: number) => void;
   onNavigateToKnowledge: (tab: 'pm25' | 'heatstroke') => void;
   onOpenSidebar: () => void;
+  userPoints: number;
+  setUserPoints: (points: number | ((prev: number) => number)) => void;
+  checkInStreak: number;
+  setCheckInStreak: (streak: number | ((prev: number) => number)) => void;
+  lastCheckInDate: string | null;
+  setLastCheckInDate: (date: string | null) => void;
 }
 
 export default function HomeView({
@@ -31,7 +38,13 @@ export default function HomeView({
   temperature,
   setTemperature,
   onNavigateToKnowledge,
-  onOpenSidebar
+  onOpenSidebar,
+  userPoints,
+  setUserPoints,
+  checkInStreak,
+  setCheckInStreak,
+  lastCheckInDate,
+  setLastCheckInDate
 }: HomeViewProps) {
   const [activeWarningTab, setActiveWarningTab] = useState<'PM2.5' | 'HEATSTROKE'>('PM2.5');
 
@@ -231,6 +244,18 @@ export default function HomeView({
             </button>
           </div>
         )}
+
+        {/* Daily Web Check-In & Rewards Widget */}
+        <div id="check-in-widget-wrapper" className="animate-fade-in">
+          <DailyCheckInWidget 
+            userPoints={userPoints}
+            setUserPoints={setUserPoints}
+            checkInStreak={checkInStreak}
+            setCheckInStreak={setCheckInStreak}
+            lastCheckInDate={lastCheckInDate}
+            setLastCheckInDate={setLastCheckInDate}
+          />
+        </div>
 
         {/* Home Screen 1 Dashboard indicators */}
         <div id="home-dashboard-layout" className="bg-white rounded-3xl p-5 shadow-xs border border-gray-100">
