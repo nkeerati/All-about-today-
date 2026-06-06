@@ -37,7 +37,7 @@ export default function MenuSidebar({
     { id: 'screening' as ViewType, label: 'คัดกรองอาการ', icon: ClipboardCheck },
     { id: 'prevention' as ViewType, label: 'การป้องกัน', icon: ShieldAlert },
     { id: 'doctor' as ViewType, label: 'ปรึกษาแพทย์ออนไลน์', icon: MessageSquare },
-    { id: 'caregivers' as ViewType, label: 'ผู้ดูแลใกล้เคียง', icon: MapPin },
+    { id: 'caregivers' as ViewType, label: 'ผู้ดูแล & สถานพยาบาล', icon: MapPin },
     { id: 'notifications' as ViewType, label: 'การแจ้งเตือน', icon: Bell },
     { id: 'settings' as ViewType, label: 'ตั้งค่า', icon: Settings },
   ];

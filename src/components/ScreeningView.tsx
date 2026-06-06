@@ -57,24 +57,60 @@ export default function ScreeningView({
 
   const handleLocalEvaluate = () => {
     const count = calculateCheckedCount();
+    const w = profile.weight || 75;
+    const h = profile.height || 170;
+    const heightM = h / 100;
+    const bmiVal = w / (heightM * heightM);
+
+    let bmiCat = "ปกติ (Normal)";
+    let hsMulti = "1.0x (เกณฑ์ปกติ)";
+    let pmRisk = "เสี่ยงมาตรฐานระดับทั่วไป";
+    if (bmiVal >= 30) {
+      bmiCat = "อ้วนรุนแรง (Obese)";
+      hsMulti = "1.8x (เสี่ยงสูงวิกฤตคั่งความร้อนสะสม)";
+      pmRisk = "เสี่ยงอักเสบในเซลล์เยื่อปอดเฉียบพลันสูงเป็นพิเศษ";
+    } else if (bmiVal >= 25) {
+      bmiCat = "น้ำหนักเกินเกณฑ์ (Overweight)";
+      hsMulti = "1.3x (เสี่ยงสูงสะสมความร้อนระเหิดช้า)";
+      pmRisk = "กระตุ้นสมรรถภาพปอดให้มีความไวระคายเคืองฝุ่นละออง PM2.5 ง่ายขึ้น";
+    } else if (bmiVal < 18.5) {
+      bmiCat = "น้ำหนักต่ำกว่าเกณฑ์ (Underweight)";
+      hsMulti = "1.1x (เสี่ยงปกติแต่เพลียง่าย)";
+      pmRisk = "ภูมิต้านทานหลอดลมแห้งระคายไวเนื่องจากพลังงานสะสมกักเก็บสมดุลหนาต่ำ";
+    }
+
     let risk = "ต่ำ";
     let desc = "ร่างกายปกติ แนะนำตรวจสอบดัชนีฝุ่นและความร้อนอย่างสม่ำเสมอ";
     
     if (count >= 3) {
-      risk = "สูงมาก เฝ้าระวังฮีทสโตรกอย่างใกล้ชิด!";
+      risk = bmiVal >= 25 ? "สูงวิกฤตเฉียบพลัน! (สะสมร่วมกับปัจจัย BMI เกณฑ์สูง)" : "สูงมาก เฝ้าระวังฮีทสโตรกอย่างใกล้ชิด!";
     } else if (count >= 1) {
-      risk = "เสี่ยงปานกลาง";
+      risk = bmiVal >= 25 ? "เสี่ยงสูงปานกลางบวกความหนาแน่นร่างกายกึ่งอมร้อน" : "ปานกลาง เฝ้าระวัง";
       desc = "คุณเริ่มมีอาการอ่อนล้าหรือขาดน้ำอันเนื่องจากสภาพแวดล้อม แนะนำพักในที่ร่ม พัดลมระบายอากาศจิบน้ำทันที";
+    } else {
+      if (bmiVal >= 25) {
+        risk = "เฝ้าระวังสะสมความร้อนตามเกณฑ์ค่า BMI";
+        desc = "แม้ไม่มีกลุ่มอาการภายนอกแสดงออก แต่ปริมาณสรีระที่กึ่งอมความร้อนทำให้อุณหภูมิร่างกายสะสมแดดแรงเร็ว ควรบังคับจิบน้ำเปล่า";
+      }
     }
 
-    const generated = `### 🩺 ผลการประเมินเบื้องต้นภายในระบบ
+    const generated = `### 🩺 ผลการประเมินเบื้องต้นภายในระบบ (BMI-Optimized Report)
 *ประเมินสำหรับ: คุณ **${profile.name || "สมเกียรติ รักดี"}** (อายุ ${profile.age} ปี โรคประจำตัว: ${profile.hasCongenitalDisease ? profile.congenitalDiseaseDetails : "ไม่มี"})*
 
-**ระดับความเสี่ยง: ${risk}** 
-*   **มีอาการสอดคล้อง:** ${count}/4 ประเด็น
-*   **คำแนะนำ:** ${count >= 3 ? "หลีกเลี่ยงกิจกรรมกลางแดดจัดเฉียบพลัน ดื่มน้ำเปล่าผสมผงเกลือแร่โออาร์เอส เช็ดตัวคลายความร้อน และถ้าตัวยังร้อนระอุ เหงื่อไม่ออก ให้สังเกตภาวะชักตื้อ คลื่นไส้รุนแรง รีบนำส่งโรงพยาบาลฉุกเฉินเด็ดขาด" : desc}
+**ข้อมูลด้านสรีรวิทยาเพื่อคำนวณ:**
+*   น้ำหนักร่างกายปัจุจบัน: **${w} กิโลกรัม**
+*   ส่วนสูงร่างกายปัจจุบัน: **${h} เซนติเมตร**
+*   **คำนวณค่าดัชนีมวลกายแบบจำลอง (BMI): ${bmiVal.toFixed(1)}** [เกณฑ์: **${bmiCat}**]
+*   🔥 **ตัวเพิ่มพูนอัตราลมแดด (Heatstroke Risk Multiplier):** **${hsMulti}**
+*   😷 **อัตราความเสี่ยงปอดอักเสบฝุ่น PM2.5:** **${pmRisk}**
 
-*ข้อแนะนำ: กดปุ่ม "ขอคำปรึกษาเจาะลึกด้วย AI แพทย์ (Dr. A Analytical)" ด้านล่าง เพื่อเชื่อมโยงสภาพฝุ่นละออง PM2.5 และอายุเพื่อรายงานผลแม่นยำยิ่งขึ้น*`;
+---
+
+**ระดับความเสี่ยงวันนี้ของคุณ: ${risk}** 
+*   **พบบทบาทอาการคัดกรองเบื้องต้น:** ${count}/4 ข้อพึงประพฤติ
+*   **วิธีแนวทางปฐมพยาบาลพฤติกรรมเฉพาะตัว:** ${count >= 3 ? "หลีกเลี่ยงกิจกรรมท้าแสงแดดโดยเด็ดขาด ดื่มน้ำกลั่นผสมผงเกลือแร่ทดแทนโออาร์เอส และหากเหงื่อแห้ง หายใจรัวรวนสั่น รีบติดต่อศูนย์สายด่วนทันควัน" : desc}
+
+*ข้อแนะนำ: แนะนำให้คลิกปุ่ม "วิเคราะห์เจาะลึกพิเศษด้วย AI (Dr. A Report)" ด้านล่าง เพื่อขอรับบทสรุปและยาป้องกันฉุกเฉินเฉพาะบุคคลที่ละเอียดกว่าเดิม*`;
     
     setLocalReport(generated);
   };
@@ -253,6 +289,87 @@ export default function ScreeningView({
           <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100/50">
             {profile.name} (อายุ {profile.age} ปี)
           </span>
+        </div>
+
+        {/* BMI Input and Calculation Panel */}
+        <div id="screening-bmi-calculator-box" className="bg-white rounded-3xl p-5 shadow-xs border border-gray-100 space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-gray-100/50">
+            <span className="text-xl">⚖️</span>
+            <div>
+              <h4 className="font-bold text-gray-800 text-xs text-left">ข้อมูลรูปร่างและดัชนีมวลกาย (BMI) เพื่อประเมินลมแดด & PM2.5</h4>
+              <p className="text-[10px] text-gray-450 text-left">ระบุน้ำหนักและส่วนสูงล่าสุดเพื่อร่วมประเมินค่าตัวเพิ่มพูนความอ่อนไหว</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-gray-650 text-left block">น้ำหนัก (กิโลกรัม)</label>
+              <input
+                type="number"
+                min="20"
+                max="250"
+                value={profile.weight || 75}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value) || 0;
+                  setProfile({ ...profile, weight: val });
+                  if (localReport) setLocalReport(null);
+                }}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-800 font-bold focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-hidden"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-gray-650 text-left block">ส่วนสูง (เซนติเมตร)</label>
+              <input
+                type="number"
+                min="100"
+                max="250"
+                value={profile.height || 170}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value) || 0;
+                  setProfile({ ...profile, height: val });
+                  if (localReport) setLocalReport(null);
+                }}
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-800 font-bold focus:bg-white focus:ring-1 focus:ring-blue-500 focus:outline-hidden"
+              />
+            </div>
+          </div>
+
+          {/* Real-time computed BMI preview badge */}
+          {(() => {
+            const w = profile.weight || 75;
+            const h = profile.height || 170;
+            const heightM = h / 100;
+            const computedBmi = w / (heightM * heightM);
+            
+            let badgeBg = "bg-green-50 text-green-700 border-green-200";
+            let badgeText = "สมส่วนเกณฑ์ปกติ (Normal)";
+            let badgeNotice = "โครงสร้างร่างกายกระจายรังสีความร้อนได้อย่างคล่องตัว สมดุลอุณหภูมิผิวเหมาะสม";
+
+            if (computedBmi >= 30) {
+              badgeBg = "bg-red-50 text-red-750 border-red-200";
+              badgeText = "ระดับอ้วนรุนแรง (Obese)";
+              badgeNotice = "⚠️ มีชั้นไขมันกักเก็บความร้อนใต้ผิวหนา เสี่ยงโรคลมแดดรุนแรงสะสมเฉียบพลันสูง 1.8 เท่า!";
+            } else if (computedBmi >= 25) {
+              badgeBg = "bg-amber-50 text-amber-700 border-amber-200";
+              badgeText = "น้ำหนักเกินเกณฑ์ (Overweight)";
+              badgeNotice = "⚠️ ร่างกายกระจายเหงื่อช้าลงเล็กน้อย มีความไวต่อปฏิกิริยาระคายอักเสบฝุ่นละออง PM2.5 ปานกลาง";
+            } else if (computedBmi < 18.5) {
+              badgeBg = "bg-sky-50 text-sky-700 border-sky-200";
+              badgeText = "น้ำหนักน้อยกว่าเกณฑ์ (Underweight)";
+              badgeNotice = "ปริมาตรสมดุลน้ำสำรองค่อนข้างจำกัด มีความอดทนเผชิญสตรีมแดดสั้นกว่าช่วงเกณฑ์คนสมส่วน";
+            }
+
+            return (
+              <div className={`p-3 rounded-2xl border ${badgeBg} space-y-1 transition-all text-left`}>
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span>BMI คำนวณทันที: {computedBmi.toFixed(1)}</span>
+                  <span className="px-2.5 py-0.5 rounded-md font-sans text-[10px] uppercase font-bold border bg-white">{badgeText}</span>
+                </div>
+                <p className="text-[10px] opacity-90 leading-tight">{badgeNotice}</p>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Buttons Action Panel */}

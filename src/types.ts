@@ -4,6 +4,8 @@ export interface UserProfile {
   gender: string;
   hasCongenitalDisease: boolean;
   congenitalDiseaseDetails: string;
+  weight?: number;
+  height?: number;
 }
 
 export interface ChatMessage {

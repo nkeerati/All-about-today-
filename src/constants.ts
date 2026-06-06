@@ -6,6 +6,8 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
   gender: "ชาย",
   hasCongenitalDisease: true,
   congenitalDiseaseDetails: "โรคความดันโลหิตสูงและหอบหืด",
+  weight: 75,
+  height: 170,
 };
 
 export const MOCK_CAREGIVERS: Caregiver[] = [
